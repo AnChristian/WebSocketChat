@@ -4,6 +4,9 @@ import edu.njpi.rj1621.domain.User;
 
 import java.util.List;
 
+/**
+ * @author Fleming
+ */
 public interface UserDao {
 
     /**
