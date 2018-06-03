@@ -8,13 +8,13 @@
     </select>
 
     <insert id="insertUser" parameterType="User">
-        INSERT into user values(#{username}, #{password}, #{petName},)
+        INSERT into user values(#{username}, #{password}, #{petName})
     </insert>
 
     <update id="updateUser" parameterType="User">
         UPDATE user set password = #{password},
 
-                        petName = #{petName},
+                        petName = #{petName}
 
                         where username = #{username}
     </update>
