@@ -11,7 +11,7 @@
        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
 
     <!-- 扫描web相关的bean -->
-    <context:component-scan base-package="edu.njpi.rj1621.controller"/>
+    <context:component-scan base-package="edu.njpi.rj1621.action"/>
 
     <!-- 开启SpringMVC注解模式 -->
     <mvc:annotation-driven/>
