@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
  * @author Fleming
@@ -30,14 +27,21 @@ public class ChatController {
 
     @RequestMapping(value = "/LoginAction.do", method = RequestMethod.POST)
     @ResponseBody
-    public String ajaxDatas() {
+    public String LoginAction() {
 
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
         User user = userSvc.queryUser(username);
 
-        boolean success = isSuccess(user, password);
+        boolean success;
+        if (user == null) {
+            success = false;
+        } else if (password.equals(user.getPassword())) {
+            success = true;
+        } else {
+            success = false;
+        }
 
         Message message;
 
@@ -54,35 +58,6 @@ public class ChatController {
         return json;
     }
 
-//    private void renderData(HttpServletResponse response, Message message) {
-//        PrintWriter printWriter = null;
-//        Gson gson = new Gson();
-//
-//        String json = gson.toJson(message);
-//
-//        try {
-//            printWriter = response.getWriter();
-//            printWriter.print(json);
-//        } catch (IOException ex) {
-//            System.out.println("错误");
-//        } finally {
-//            if (null != printWriter) {
-//                printWriter.flush();
-//                printWriter.close();
-//            }
-//        }
-//    }
 
-    private boolean isSuccess(User user, String passWord) {
-
-        if (user == null) {
-            return false;
-        } else if (passWord.equals(user.getPassword())) {
-            return true;
-        } else {
-            return false;
-        }
-
-    }
 
 }

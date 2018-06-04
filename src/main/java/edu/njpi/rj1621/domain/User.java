@@ -7,7 +7,7 @@ public class User {
 
     private String username;
     private String password;
-    private String petName;
+    private String roleCode;
 
     public String getUsername() {
         return username;
@@ -25,12 +25,12 @@ public class User {
         this.password = password;
     }
 
-    public String getPetName() {
-        return petName;
+    public String getRoleCode() {
+        return roleCode;
     }
 
-    public void setPetName(String petName) {
-        this.petName = petName;
+    public void setRoleCode(String roleCode) {
+        this.roleCode = roleCode;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class User {
         return "User{" +
                 "username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", petName='" + petName + '\'' +
+                ", roleCode='" + roleCode + '\'' +
                 '}';
     }
 }

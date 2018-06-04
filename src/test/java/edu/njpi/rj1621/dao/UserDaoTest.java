@@ -31,7 +31,7 @@ public class UserDaoTest {
         User user = new User();
         user.setUsername("flm");
         user.setPassword("111");
-        user.setPetName("ff");
+        user.setRoleCode("ff");
 
         userDao.insertUser(user);
 
@@ -42,7 +42,7 @@ public class UserDaoTest {
         User user = new User();
         user.setUsername("flm");
         user.setPassword("111");
-        user.setPetName("ff");
+        user.setRoleCode("ff");
 
         userDao.updateUser(user);
 

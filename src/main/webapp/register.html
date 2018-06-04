@@ -3,8 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <title>注册</title>
-</head>
-<body>
+    <script type="text/javascript" src="webjars/jquery/3.0.0-alpha1/jquery.min.js"></script>
+    <script>
+        function panduan() {
+            var username = document.getElementById("username");
+            var password = document.getElementById("password");
 
+            if(username.value == "" || password.value == ""){
+                alert("完善您的注册信息");
+            } else {
+                register();
+            }
+
+        }
+        function register() {
+
+        }
+        function back() {
+            window.location.href = "login.html";
+        }
+    </script>
+</head>
+<style>
+    *{
+        margin:0;
+    }
+    body{
+        background: url("img/bc1.jpg") no-repeat 50%;
+        background-size: cover;
+    }
+    body,html{
+        height: 100%;
+    }
+    #box{
+        display: block;
+        height: 100%;
+        min-width: 860px;
+        min-height: 700px;
+        overflow: auto;
+        position: relative;
+    }
+    #registerbox{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -230px;
+        margin-top: -270px;
+        border-radius: 10px;
+        -moz-border-radius: 4px;
+        -webkit-border-radius: 4px;
+        background-color: #fff;
+        width: 380px;
+        height: 540px;
+        box-shadow: 0 2px 10px #999;
+        -moz-box-shadow: #999 0 2px 10px;
+        -webkit-box-shadow: #999 0 2px 10px;
+    }
+    #t1{
+        text-align: center;
+        line-height: 140px;
+        height: 140px;
+        width: 380px;
+        margin-top: 0;
+        font-size: 36px;
+    }
+    #t2{
+        height: 300px;
+        width: 380px;
+        color: #999999;
+        margin-left: 60px;
+        font-size: 22px;
+    }
+    #t2 input{
+        border: none;
+        border-bottom: 1px solid black;
+        margin-top: 18px;
+        font-size: 22px;
+    }
+    #t3{
+        margin-left: 160px;
+        width: 100%;
+    }
+    #back{
+        position: relative;
+        z-index: 100;
+
+    }
+    #back:hover{
+        background-color: #eaeaea;
+    }
+</style>
+
+<body>
+<div id="box">
+    <div id="back" style="border-radius:20px; margin:30px; height:100px; width:100px; background-image: url('img/back.png');" onclick="back()"></div>
+    <div id="registerbox">
+        <form id="form1">
+            <div id="t1">注册</div>
+            <div id="t2">
+                Username:<br>
+                <input type="text" id="username" name="username" placeholder="输入要注册的用户名"><br><br>
+                Password:<br>
+                <input type="text" id="password" name="password" placeholder="输入要注册的密码">
+            </div>
+            <div id="t3">
+                <input type="button" style="width: 60px" value="注册" onclick="panduan()">
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>

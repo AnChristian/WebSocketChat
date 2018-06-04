@@ -4,8 +4,18 @@
     <title>登陆</title>
     <script type="text/javascript" src="webjars/jquery/3.0.0-alpha1/jquery.min.js"></script>
     <script>
+        function panduan() {
+            var username = document.getElementById("username");
+            var password = document.getElementById("password");
+
+            if(username.value == "" || password.value == ""){
+                alert("完善您的登录信息");
+            } else {
+                login();
+            }
+
+        }
         function login(){
-            alert($("#username").val());
             $.ajax({
                 url: "/Chat/LoginAction.do",
                 type: "post",
@@ -16,12 +26,15 @@
         }
 
         function callback(data){
-            alert(data.status);
             if (data.status == 0) {
                 window.location = data.object;
             } else {
-                alert("密码或账号输入错误");
+                alert("密码或账号输入错误，你试试可以直接联系管理员(lll￢ω￢)");
             }
+        }
+
+        function register() {
+            window.location.href = "register.html";
         }
     </script>
 </head>
@@ -50,7 +63,7 @@
         left: 50%;
         margin-left: -230px;
         margin-top: -270px;
-        border-radius: 4px;
+        border-radius: 10px;
         -moz-border-radius: 4px;
         -webkit-border-radius: 4px;
         background-color: #fff;
@@ -82,9 +95,11 @@
         font-size: 22px;
     }
     #t3{
-        margin-left: 160px;
+        margin-left: 130px;
+        width: 100%;
     }
 </style>
+
 <body>
 <div id="box">
     <div id="loginbox">
@@ -96,7 +111,10 @@
                 Password:<br>
                 <input type="text" id="password" name="password">
             </div>
-            <div id="t3"><input type="button" value="登录" onclick="login()"></div>
+            <div id="t3">
+                <input type="button" style="width: 60px" value="登录" onclick="panduan()">
+                <a id="registerB" onclick="register()" style="cursor:pointer;">注册</a>
+            </div>
         </form>
     </div>
 </div>
