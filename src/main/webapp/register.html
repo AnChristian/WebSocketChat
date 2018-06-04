@@ -5,7 +5,8 @@
     <title>注册</title>
     <script type="text/javascript" src="webjars/jquery/3.0.0-alpha1/jquery.min.js"></script>
     <script>
-        function panduan() {
+        
+        function isNullorRegister() {
             var username = document.getElementById("username");
             var password = document.getElementById("password");
 
@@ -14,11 +15,60 @@
             } else {
                 register();
             }
-
         }
+
         function register() {
+            $.ajax({
+                url: "/Chat/RegisterAction.do",
+                type: "post",
+                data: {username: $("#username").val(), password: $("#password").val()},
+                dataType: "json",
+                success: registerCallback
+            });
+        }
+
+        function registerCallback(data) {
+            var t1 = document.getElementById("t1");
+            if(data.status == 0){
+                t1.style.fontSize = "20px";
+                t1.innerText = data.object+"";
+            } else {
+                alert("注册失败，更换用户名或密码再试一遍(lll￢ω￢)");
+            }
+        }
+        
+//------------------------------------------------------------------------------
+
+        function panduan() {
+            if(document.getElementById("username").value != ""){
+                $.ajax({
+                    url: "/Chat/IsPassAction.do",
+                    type: "post",
+                    data: {username: $("#username").val()},
+                    dataType: "json",
+                    success: isPasscallback
+                });
+            }
+        }
+
+        function isPasscallback(data) {
+
+            var isPass = document.getElementById("isPass");
+            var rb = document.getElementById("registerB");
+            isPass.innerHTML = "";
+            if(data.status == 0){
+                isPass.style.color = "lightgreen";
+                isPass.innerHTML = "通过";
+                rb.disabled = false;
+            } else {
+                isPass.style.color = "crimson";
+                isPass.innerHTML = "重复";
+                rb.disabled = true;
+            }
 
         }
+
+//--------------------------------------------------------------------------
         function back() {
             window.location.href = "login.html";
         }
@@ -102,12 +152,13 @@
             <div id="t1">注册</div>
             <div id="t2">
                 Username:<br>
-                <input type="text" id="username" name="username" placeholder="输入要注册的用户名"><br><br>
+                <input type="text" id="username" name="username" placeholder="输入要注册的用户名" onchange="panduan()">
+                <a id="isPass" style="font-size: 10px;"></a><br><br>
                 Password:<br>
                 <input type="text" id="password" name="password" placeholder="输入要注册的密码">
             </div>
             <div id="t3">
-                <input type="button" style="width: 60px" value="注册" onclick="panduan()">
+                <input id="registerB" type="button" style="width: 60px" value="注册" onclick="isNullorRegister()">
             </div>
         </form>
     </div>

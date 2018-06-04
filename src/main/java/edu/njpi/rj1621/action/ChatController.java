@@ -25,9 +25,9 @@ public class ChatController {
     @Autowired
     private HttpServletRequest request;
 
-    @RequestMapping(value = "/LoginAction.do", method = RequestMethod.POST)
+    @RequestMapping(value = "/LoginAction.do", method = RequestMethod.POST, produces="text/html;charset=UTF-8")
     @ResponseBody
-    public String LoginAction() {
+    public String loginAction() {
 
         String username = request.getParameter("username");
         String password = request.getParameter("password");
@@ -58,6 +58,52 @@ public class ChatController {
         return json;
     }
 
+    //-------------------------------------------------------------------------------------
 
+    @RequestMapping(value = "/IsPassAction.do", method = RequestMethod.POST, produces="text/html;charset=UTF-8")
+    @ResponseBody
+    public String ispassaction() {
+        String username = request.getParameter("username");
+        User user = userSvc.queryUser(username);
+        boolean success = true;     //默认不存在该用户可以注册
+        if (user != null) {         //若查询到用户，不可以注册
+            success = false;        //不可以注册
+        }
+
+        Message message;
+
+        if (success) {
+            message = new Message("0");
+        } else {
+            message = new Message("1");
+        }
+
+        Gson gson = new Gson();
+
+        String json = gson.toJson(message);
+
+        return json;
+    }
+
+    //------------------------------------------------------------------------------------
+
+    @RequestMapping(value = "/RegisterAction.do", method = RequestMethod.POST, produces="text/html;charset=UTF-8")
+    @ResponseBody
+    public String RegisterAction() {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setRoleCode("yh");
+        userSvc.addUser(user);
+
+        Message message = new Message("0", "注册成功，点击右上角返回登录吧");
+
+        Gson gson = new Gson();
+        String json = gson.toJson(message);
+
+        return json;
+    }
 
 }

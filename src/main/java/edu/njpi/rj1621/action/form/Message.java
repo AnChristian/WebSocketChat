@@ -5,6 +5,10 @@ public class Message {
     private String status;
     private Object object;
 
+    public Message(String status) {
+        this.status = status;
+    }
+
     public Message(String status, Object object) {
         this.status = status;
         this.object = object;
