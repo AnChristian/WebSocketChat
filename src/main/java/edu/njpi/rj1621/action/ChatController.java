@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * @author Fleming
@@ -24,6 +25,8 @@ public class ChatController {
     private UserSvc userSvc;
     @Autowired
     private HttpServletRequest request;
+    @Autowired
+    private HttpSession session;
 
     @RequestMapping(value = "/LoginAction.do", method = RequestMethod.POST, produces="text/html;charset=UTF-8")
     @ResponseBody
@@ -47,6 +50,7 @@ public class ChatController {
 
         if (success) {
             message = new Message("0","main.jsp");
+            session.setAttribute("username",username);
         } else {
             message = new Message("1", "<h1>登陆失败</h1>");
         }
@@ -89,7 +93,7 @@ public class ChatController {
 
     @RequestMapping(value = "/RegisterAction.do", method = RequestMethod.POST, produces="text/html;charset=UTF-8")
     @ResponseBody
-    public String RegisterAction() {
+    public String registerAction() {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         User user = new User();
