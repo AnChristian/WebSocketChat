@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -25,12 +26,10 @@ public class ChatController {
     private UserSvc userSvc;
     @Autowired
     private HttpServletRequest request;
-    @Autowired
-    private HttpSession session;
 
     @RequestMapping(value = "/LoginAction.do", method = RequestMethod.POST, produces="text/html;charset=UTF-8")
     @ResponseBody
-    public String loginAction() {
+    public String loginAction(HttpServletRequest request) {
 
         String username = request.getParameter("username");
         String password = request.getParameter("password");
@@ -49,8 +48,10 @@ public class ChatController {
         Message message;
 
         if (success) {
+            HttpSession session = request.getSession();
             message = new Message("0","main.jsp");
             session.setAttribute("username",username);
+            WebSocketHandle.setHttpSession(session);
         } else {
             message = new Message("1", "<h1>登陆失败</h1>");
         }
