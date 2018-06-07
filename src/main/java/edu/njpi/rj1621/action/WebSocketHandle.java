@@ -21,17 +21,10 @@ public class WebSocketHandle {
     private static int onlineCount = 0;
     //在线统计
 
-    private static Map<String, WebSocketHandle> webSocketMap = new HashMap<>();
-    //存放所有登录用户的Map集合，键：每个用户的唯一标识（用户名）
+    private static Map<String,WebSocketHandle> webSocketMap = new HashMap<String,WebSocketHandle>();
 
     private Session session;
-    //httpSession用以在建立连接的时候获取登录用户的唯一标识（登录名）,获取到之后以键值对的方式存在Map对象里面
-
-    private static HttpSession httpSession;
-
-    public static void setHttpSession(HttpSession httpSession) {
-        WebSocketHandle.httpSession = httpSession;
-    }
+    //每个用户的session
 
     //-------------------------------------------------------------------------------------------
 
@@ -42,7 +35,7 @@ public class WebSocketHandle {
      */
     @OnOpen
     public void onOpen(Session session) {
-
+        System.out.println(session + "建立连接");
     }
 
     //---------------------------------------------------------------------------------------------
@@ -52,13 +45,13 @@ public class WebSocketHandle {
      */
     @OnClose
     public void onClose() {
-
+        System.out.println("退出");
     }
 
     //----------------------------------------------------------------------------------------------
 
     /**
-     * 服务器接收到客户端消息时调用的方法，（通过“@”截取接收用户的用户名）
+     * 服务器接收到客户端消息时调用的方法
      *
      * @param message   客户端发送过来的消息
      *
@@ -102,7 +95,6 @@ public class WebSocketHandle {
      * @throws IOException
      */
     public void sendMessage(String message) throws IOException {
-
     }
 
     public static synchronized int getOnlineCount() {

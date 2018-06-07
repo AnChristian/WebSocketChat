@@ -29,10 +29,29 @@
             if (data.status == 0) {
                 window.location = data.object;
             } else {
-                alert("密码或账号输入错误，你试试可以直接联系管理员(lll￢ω￢)");
+                if(data.object != "") {
+                    var confirm = window.confirm(data.object);
+
+                    //确认覆盖登录
+                    if (confirm) {
+                        $.ajax({
+                            url: "/Chat/OverrideLoginAction.do",
+                            type: "post",
+                            data: {username: $("#username").val()},
+                            dataType: "json",
+                            success: loginAgainCallback
+                        })
+                    }
+                } else {
+                    alert("密码或账号输入错误，你试试可以直接联系管理员(lll￢ω￢)");
+                }
             }
         }
 
+        function loginAgainCallback(data) {
+            window.location = data.object;
+        }
+        
         function register() {
             window.location.href = "register.html";
         }

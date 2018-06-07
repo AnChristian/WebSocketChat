@@ -120,22 +120,13 @@
             debugger
             var messageJson = eval("("+event.data+")");
             if (messageJson.messageType == "message") {
-                document.getElementById("showMsg").innerHTML += messageJson.data;
+                document.getElementById("showMsg").innerHTML += messageJson.data + "<br/>";
             }
             if (messageJson.messageType == "onlineCount") {
                 document.getElementById("onlineCount").innerHTML = "在线人数："+messageJson.data;
             }
         }
 
-        //连接关闭的回调方法
-        websocket.onclose = function () {
-            closeWebSocket();
-        }
-
-        function closeWebSocket() {
-            websocket.close();
-        }
-        
         function setMessageInnerHTML(message) {       //将内容显示在网页左上角
             document.getElementById('status').innerHTML = message;
         }
@@ -143,7 +134,11 @@
         function send() {
 
         }
-
+    
+        window.onbeforeunload = function () {
+            websocket.close();
+            return "退出将会断开连接";
+        }
     </script>
 </head>
 <body>
