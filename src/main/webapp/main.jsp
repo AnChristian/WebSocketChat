@@ -68,8 +68,10 @@
             text-align: center;
         }
         #showMsg{
+            font-size: 30px;
             width: 400px;
             height:380px;
+            overflow: auto;
             margin-left: 15px;
             border-bottom: 1px solid #999999;
         }
@@ -93,14 +95,20 @@
             color: #ffffff;
             text-align: center;
             overflow: auto;
+            font-size: 30px;
+        }
+        .onlineUserA:hover{
+            cursor: pointer;
         }
     </style>
     <script type="text/javascript" src="webjars/jquery/3.0.0-alpha1/jquery.min.js"></script>
     <script>
+
         var websocket = null;
+        var receiverName = null;
 
         if('WebSocket' in window) {
-            websocket = new WebSocket("ws://localhost/SocketHandle");
+            websocket = new WebSocket("ws://localhost/SocketHandle/${username }");
         } else {
             alert("当前浏览器不支持WebSocket");
         }
@@ -119,26 +127,89 @@
         websocket.onmessage = function (event) {
             debugger
             var messageJson = eval("("+event.data+")");
+
+            //收到消息时的动作
             if (messageJson.messageType == "message") {
-                document.getElementById("showMsg").innerHTML += messageJson.data + "<br/>";
             }
+
+            //收到更新在线人数时的动作
             if (messageJson.messageType == "onlineCount") {
-                document.getElementById("onlineCount").innerHTML = "在线人数："+messageJson.data;
+            }
+
+            //接收到增加在线成员时的动作
+            if (messageJson.messageType == "AddOnlineMenber") {
+            }
+
+            //接收到移除在线成员时动作
+            if (messageJson.messageType == "RemoveOnlineMenber") {
             }
         }
 
-        function setMessageInnerHTML(message) {       //将内容显示在网页左上角
+        //将内容显示在网页左上角
+        function setMessageInnerHTML(message) {
             document.getElementById('status').innerHTML = message;
         }
 
-        function send() {
-
-        }
-    
+        //退出时断开连接
         window.onbeforeunload = function () {
             websocket.close();
             return "退出将会断开连接";
         }
+
+        //在对象列表上移除对象
+        function removeUser(username) {
+            var div = document.getElementById("onlineUser");
+            var a = document.getElementsByClassName("onlineUserA");
+            for(var i=0; i<a.length; i++){
+                if (a[i].innerHTML == username) {
+                    div.removeChild(a[i]);
+                }
+            }
+        }
+
+        //在对象列表上添加对象
+        function addUser(username) {
+            document.getElementById("onlineUser").innerHTML += "<a class='onlineUserA' onclick='selectUser("+username+")'>"+username+"</a>"+"<br/>";
+        }
+
+        //选择用户名作为消息的发送对象，改变字体颜色，激活按钮
+        function selectUser(username) {
+            var a = document.getElementsByClassName("onlineUserA");
+            for(var i = 0; i<a.length; i++){
+                if(a[i].innerHTML == username){
+                    if(a[i].style.color == "rgb(255, 81, 81)"){
+                        a[i].style.color = "#ffffff";
+                        receiverName = "";
+                        document.getElementById("b1").disabled = "disabled";
+                    } else {
+                        a[i].style.color = "#FF5151";
+                        receiverName = username;
+                        document.getElementById("b1").disabled = false;
+                    }
+                }
+            }
+        }
+
+        //发送消息
+        function send() {
+            if(receiverName == ""){
+                alert("请选择你要发送的人");
+            } else {
+                var message = document.getElementById("sendMsg").value;
+                alert(receiverName+"/"+message);
+                if(message != ""){
+                    var myDate = new Date();
+                    document.getElementById("showMsg").innerHTML += "${username }" +"："+ message +"——"
+                                                                                + myDate.getHours() + "点"
+                                                                                + myDate.getMinutes() + "分"
+                                                                                +'<br/>';
+                    websocket.send(receiverName+"/"+message);
+                } else {
+                    alert("请输入发送的内容");
+                }
+            }
+        }
+
     </script>
 </head>
 <body>
@@ -148,15 +219,14 @@
 
         </div>
         <textarea id="sendMsg"></textarea>
-        <button onclick="send()" id="b1">发送</button>
+        <button onclick="send()" id="b1" disabled="disabled">发送</button>
     </div>
     <div id="Chatbox2">
         <div id="UserSelf">${username }</div>
 
         <a id="onlineCount" style="margin-left: 55px; color: #999999">在线人数：</a>
-        <div id="t2">在线成员</div>
+        <div id="t2">选择发送对象</div><br/>
         <div id="onlineUser">
-
         </div>
     </div>
     <div id="status" style="width: 120px;height: 20px"></div>
