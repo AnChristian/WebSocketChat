@@ -29,7 +29,9 @@
             if (data.status == 0) {
                 window.location = data.object;
             } else {
-                if(data.object != "") {
+                if(data.object == "") {
+                    alert("密码或账号输入错误，你试试可以直接联系管理员(lll￢ω￢)");
+                } else {
                     var confirm = window.confirm(data.object);
 
                     //确认覆盖登录
@@ -42,8 +44,6 @@
                             success: loginAgainCallback
                         })
                     }
-                } else {
-                    alert("密码或账号输入错误，你试试可以直接联系管理员(lll￢ω￢)");
                 }
             }
         }

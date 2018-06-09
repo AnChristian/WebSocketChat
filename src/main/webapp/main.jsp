@@ -130,18 +130,35 @@
 
             //收到消息时的动作
             if (messageJson.messageType == "message") {
+
+                var split = messageJson.data.split("|");
+
+                var myDate = new Date();
+                document.getElementById("showMsg").innerHTML += split[0] +"："+ split[1] +"——"
+                    + myDate.getHours() + "点"
+                    + myDate.getMinutes() + "分"
+                    +'<br/>';
             }
 
             //收到更新在线人数时的动作
             if (messageJson.messageType == "onlineCount") {
+                document.getElementById("onlineCount").innerHTML = "在线人数："+messageJson.data;
             }
 
             //接收到增加在线成员时的动作
-            if (messageJson.messageType == "AddOnlineMenber") {
+            if (messageJson.messageType == "AddOnlineMember") {
+                addUser(messageJson.data);
             }
 
             //接收到移除在线成员时动作
-            if (messageJson.messageType == "RemoveOnlineMenber") {
+            if (messageJson.messageType == "RemoveOnlineMember") {
+                removeUser(messageJson.data);
+            }
+
+            //接收到强制下线的操作
+            if(messageJson.messageType == "closeConn"){
+                websocket.close();
+                setMessageInnerHTML("连接断开");
             }
         }
 
@@ -169,7 +186,7 @@
 
         //在对象列表上添加对象
         function addUser(username) {
-            document.getElementById("onlineUser").innerHTML += "<a class='onlineUserA' onclick='selectUser("+username+")'>"+username+"</a>"+"<br/>";
+            document.getElementById("onlineUser").innerHTML += "<a class='onlineUserA' onclick='selectUser('"+username+"')>"+username+"</a>"+"<br/>";
         }
 
         //选择用户名作为消息的发送对象，改变字体颜色，激活按钮
@@ -196,14 +213,13 @@
                 alert("请选择你要发送的人");
             } else {
                 var message = document.getElementById("sendMsg").value;
-                alert(receiverName+"/"+message);
                 if(message != ""){
                     var myDate = new Date();
                     document.getElementById("showMsg").innerHTML += "${username }" +"："+ message +"——"
                                                                                 + myDate.getHours() + "点"
                                                                                 + myDate.getMinutes() + "分"
                                                                                 +'<br/>';
-                    websocket.send(receiverName+"/"+message);
+                    websocket.send(receiverName+"|"+message);
                 } else {
                     alert("请输入发送的内容");
                 }

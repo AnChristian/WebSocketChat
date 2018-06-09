@@ -55,7 +55,6 @@ public class ChatController {
         if (success) {
             //在别处登录
             if (application.getAttribute(username) != null && application.getAttribute(username) != session.getId()) {
-
                 message = new Message("1", "账号已在其他地方登录，是否继续登录");
 
                 //正常登录
@@ -67,7 +66,8 @@ public class ChatController {
 
             //密码验证错误
         } else {
-            message = new Message("1");
+            System.out.println("密码错误");
+            message = new Message("1", "");
         }
 
         Gson gson = new Gson();
