@@ -141,7 +141,7 @@
             }
 
             //收到更新在线人数时的动作
-            if (messageJson.messageType == "onlineCount") {
+            if (messageJson.messageType == "OnlineCount") {
                 document.getElementById("onlineCount").innerHTML = "在线人数："+messageJson.data;
             }
 
@@ -156,7 +156,7 @@
             }
 
             //接收到强制下线的操作
-            if(messageJson.messageType == "closeConn"){
+            if(messageJson.messageType == "CloseConn"){
                 websocket.close();
                 setMessageInnerHTML("连接断开");
             }
@@ -186,7 +186,12 @@
 
         //在对象列表上添加对象
         function addUser(username) {
-            document.getElementById("onlineUser").innerHTML += "<a class='onlineUserA' onclick='selectUser('"+username+"')>"+username+"</a>"+"<br/>";
+            var s1 = "<a class='onlineUserA' onclick='selectUser('";
+            var s2 = "')>";
+            var s3 = "</a>";
+            var s4 = "<br/>";
+            var s = s1+username+s2+username+s3+s4;
+            document.getElementById("onlineUser").innerHTML += s;
         }
 
         //选择用户名作为消息的发送对象，改变字体颜色，激活按钮

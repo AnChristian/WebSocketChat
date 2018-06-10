@@ -2,12 +2,12 @@ package edu.njpi.rj1621.action;
 
 import com.google.gson.Gson;
 import edu.njpi.rj1621.action.form.MessageDto;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -15,12 +15,10 @@ import java.util.Map;
  */
 @Controller
 @ServerEndpoint(value = "/SocketHandle/{param}")
+@Component
 public class WebSocketHandle {
 
-    private static Map<String,WebSocketHandle> webSocketMap = new HashMap();
-
-    private Session session;
-    //每个用户的session
+    private Map<String, Session> webSocketMap = ChatServer.getWebSocketMap();
 
     //-------------------------------------------------------------------------------------------
 
@@ -29,53 +27,56 @@ public class WebSocketHandle {
      *
      * @param session 可选的参数。session为与某个客户端的连接会话，需要通过它来给客户端发送数据
      *
-     * 查看application里是否有username，若有，移除之，通知其前台断开连接
-     * map里添加用户名和它的类
-     * 通知前台在用户列表里添加用户
-     * 通知除了自己的前台更新在线人数
+     * 查看webSocketMap里是否有username且值不等于参数，若有，移除之，通知其前台断开连接
+     * map里添加用户名和它的Session
+     *
+     * 获取除了自己在线用户列表
+     *
+     * 通知除了自己前台在用户列表里添加用户
+     * 通知所有前台更新在线人数
      */
     @OnOpen
     public void onOpen(@PathParam(value="param") String username, Session session) {
 
         Gson gson = new Gson();
 
-        //重复登录之强制下线操作，下线后通知前台更新人数
-        for (Map.Entry<String,WebSocketHandle> entry : webSocketMap.entrySet()) {
-            if(username.equals(entry.getKey())){
-                MessageDto messageClose = new MessageDto();
-                messageClose.setMessageType("closeConn");
-                //通知下线
-                webSocketMap.get(username).session.getAsyncRemote().sendText(gson.toJson(messageClose));
-                webSocketMap.remove(username);
+        //若要就强制下线操作
+        if(webSocketMap.containsKey(username) && webSocketMap.get(username) == session){
+            MessageDto messageCloseConn = new MessageDto();
+            messageCloseConn.setMessageType("CloseConn");
+            webSocketMap.get(username).getAsyncRemote().sendText(gson.toJson(messageCloseConn));
+            webSocketMap.remove(username);
+        }
 
-                System.out.println("username："+username+"，session："+session+"  强制下线");
-                continue;
+        //添加信息
+        webSocketMap.put(username,session);
+
+        //获取在线成员除了自己列表（发给自己）
+        MessageDto messageDtoGetOnlineMember = new MessageDto();
+        messageDtoGetOnlineMember.setMessageType("AddOnlineMember");
+        for (Map.Entry<String, Session> entry : webSocketMap.entrySet()){
+            if(!entry.getKey().equals(username)){
+                messageDtoGetOnlineMember.setData(entry.getKey());
+                webSocketMap.get(username).getAsyncRemote().sendText(gson.toJson(messageDtoGetOnlineMember));
             }
         }
 
-        //建立连接
-        System.out.println("用户名："+ username + "，session："+session+"  建立连接");
-        this.session = session;
-        webSocketMap.put(username,this);
+        //通知其他前台更新在线列表（发给其他人）
+        MessageDto messageDtoAddOnlineMember = new MessageDto();
+        messageDtoAddOnlineMember.setMessageType("AddOnlineMember");
+        messageDtoAddOnlineMember.setData(username);
+        for (Map.Entry<String, Session> entry : webSocketMap.entrySet()) {
+            if(!entry.getKey().equals(username)){
+                entry.getValue().getAsyncRemote().sendText(gson.toJson(messageDtoAddOnlineMember));
+            }
+        }
 
-        //通知所有前台更新在线人数
+        //通知所有前台更新在线人数（发给所有人）
         MessageDto messageDtoOnlineCount = new MessageDto();
-        messageDtoOnlineCount.setMessageType("onlineCount");
+        messageDtoOnlineCount.setMessageType("OnlineCount");
         messageDtoOnlineCount.setData(webSocketMap.size()+"");
-        for (Map.Entry<String,WebSocketHandle> entry : webSocketMap.entrySet()) {
-            entry.getValue().session.getAsyncRemote().sendText(gson.toJson(messageDtoOnlineCount));
-        }
-
-        //通知除了自己的前台更新在线用户列表
-        MessageDto messageDtoOnlineMember = new MessageDto();
-        messageDtoOnlineMember.setMessageType("AddOnlineMember");
-        messageDtoOnlineMember.setData(username);
-        for (Map.Entry<String,WebSocketHandle> entry : webSocketMap.entrySet()) {
-            if (username.equals(entry.getKey())) {
-                continue;
-            } else {
-                entry.getValue().session.getAsyncRemote().sendText(gson.toJson(messageDtoOnlineMember));
-            }
+        for (Map.Entry<String, Session> entry : webSocketMap.entrySet()) {
+            entry.getValue().getAsyncRemote().sendText(gson.toJson(messageDtoOnlineCount));
         }
 
     }
@@ -94,26 +95,26 @@ public class WebSocketHandle {
     public void onClose(@PathParam(value="param") String username) {
         Gson gson = new Gson();
 
-        webSocketMap.remove(username);
-
         System.out.println(username+"断开连接");
 
-        //通知所有人前台更新用户人数
-        MessageDto subOnlineCountM = new MessageDto();
-        subOnlineCountM.setMessageType("onlineCount");
-        subOnlineCountM.setData(webSocketMap.size()+"");
-        for (Map.Entry<String,WebSocketHandle> entry : webSocketMap.entrySet()) {
-            entry.getValue().session.getAsyncRemote().sendText(gson.toJson(subOnlineCountM));
+        //移除map里关于username的记录
+        webSocketMap.remove(username);
+
+        //通知所有前台更新在线列表（减少用户）
+        MessageDto messageDtoRemoveOnlineMember = new MessageDto();
+        messageDtoRemoveOnlineMember.setMessageType("RemoveOnlineMember");
+        messageDtoRemoveOnlineMember.setData(username);
+        for (Map.Entry<String, Session> entry : webSocketMap.entrySet()) {
+            entry.getValue().getAsyncRemote().sendText(gson.toJson(messageDtoRemoveOnlineMember));
         }
 
-        //通知所有人前台减少用户
-        MessageDto subOnlineMemberM = new MessageDto();
-        subOnlineMemberM.setMessageType("RemoveOnlineMember");
-        subOnlineMemberM.setData(username);
-        for (Map.Entry<String,WebSocketHandle> entry : webSocketMap.entrySet()) {
-            entry.getValue().session.getAsyncRemote().sendText(gson.toJson(subOnlineMemberM));
+        //通知所有前台更新在线人数
+        MessageDto messageDtoOnlineCount = new MessageDto();
+        messageDtoOnlineCount.setMessageType("OnlineCount");
+        messageDtoOnlineCount.setData(webSocketMap.size()+"");
+        for (Map.Entry<String, Session> entry : webSocketMap.entrySet()) {
+            entry.getValue().getAsyncRemote().sendText(gson.toJson(messageDtoOnlineCount));
         }
-
     }
 
     //----------------------------------------------------------------------------------------------
@@ -131,27 +132,27 @@ public class WebSocketHandle {
     @OnMessage
     public void onMessage(String message, Session session) {
         Gson gson = new Gson();
+
         String[] split = message.split("\\|");
         String receiverName = split[0];
         String messageFrom = split[1];
+        String sourceName = "";
 
-        //发送源
-        String sourceName="";
-
-        for (Map.Entry<String,WebSocketHandle> entry : webSocketMap.entrySet()) {
+        for (Map.Entry<String, Session> entry : webSocketMap.entrySet()) {
+            //根据接收用户名遍历出接收对象
             if (receiverName.equals(entry.getKey())) {
-                for (Map.Entry<String,WebSocketHandle> entry1  : webSocketMap.entrySet()) {
-                    //session在这里作为客户端向服务器发送信息的会话，用来遍历出信息来源
-                    if(entry1.getValue().session==session){
-                        sourceName=entry1.getKey();
+
+                //session在这里作为客户端向服务器发送信息的会话，用来遍历出信息来源
+                for (Map.Entry<String, Session> entry1  : webSocketMap.entrySet()){
+                    if (entry1.getValue() == session) {
+                        sourceName = entry1.getKey();
                     }
                 }
 
                 MessageDto messageDto = new MessageDto();
                 messageDto.setMessageType("message");
                 messageDto.setData(sourceName+"|"+messageFrom);
-
-                entry.getValue().session.getAsyncRemote().sendText(gson.toJson(messageDto));
+                entry.getValue().getAsyncRemote().sendText(gson.toJson(messageDto));
 
             }
         }
@@ -161,8 +162,6 @@ public class WebSocketHandle {
 
     /**
      * 发生错误时调用
-     *
-     * @param error
      */
     @OnError
     public void onError(Throwable error) {

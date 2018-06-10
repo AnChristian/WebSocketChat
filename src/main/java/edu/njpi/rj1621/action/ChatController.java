@@ -44,7 +44,7 @@ public class ChatController {
 
         Message message;
 
-        ServletContext application = LoginServer.getApplication();
+        ServletContext application = ChatServer.getApplication();
         HttpSession session = request.getSession();
 
         System.out.println("正常登录——保存的SId："+application.getAttribute(username));
@@ -84,7 +84,7 @@ public class ChatController {
     public String overrideLogin(HttpServletRequest request){
         String username = request.getParameter("username");
 
-        ServletContext application = LoginServer.getApplication();
+        ServletContext application = ChatServer.getApplication();
         HttpSession session = request.getSession();
 
         System.out.println("重复登录——保存的SId："+application.getAttribute(username));
