@@ -5,6 +5,7 @@ import edu.njpi.rj1621.action.form.MessageDto;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
+import javax.servlet.ServletContext;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
@@ -18,7 +19,7 @@ import java.util.Map;
 @Component
 public class WebSocketHandle {
 
-    private Map<String, Session> webSocketMap = ChatServer.getWebSocketMap();
+    private static Map<String, Session> webSocketMap = ChatServer.getWebSocketMap();
 
     //-------------------------------------------------------------------------------------------
 
@@ -33,15 +34,16 @@ public class WebSocketHandle {
      * 获取除了自己在线用户列表
      *
      * 通知除了自己前台在用户列表里添加用户
-     * 通知所有前台更新在线人数
      */
     @OnOpen
     public void onOpen(@PathParam(value="param") String username, Session session) {
 
         Gson gson = new Gson();
 
+        System.out.println(username+"建立连接");
+
         //若要就强制下线操作
-        if(webSocketMap.containsKey(username) && webSocketMap.get(username) == session){
+        if(webSocketMap.containsKey(username) && webSocketMap.get(username) != session){
             MessageDto messageCloseConn = new MessageDto();
             messageCloseConn.setMessageType("CloseConn");
             webSocketMap.get(username).getAsyncRemote().sendText(gson.toJson(messageCloseConn));
@@ -71,14 +73,6 @@ public class WebSocketHandle {
             }
         }
 
-        //通知所有前台更新在线人数（发给所有人）
-        MessageDto messageDtoOnlineCount = new MessageDto();
-        messageDtoOnlineCount.setMessageType("OnlineCount");
-        messageDtoOnlineCount.setData(webSocketMap.size()+"");
-        for (Map.Entry<String, Session> entry : webSocketMap.entrySet()) {
-            entry.getValue().getAsyncRemote().sendText(gson.toJson(messageDtoOnlineCount));
-        }
-
     }
 
     //---------------------------------------------------------------------------------------------
@@ -87,8 +81,7 @@ public class WebSocketHandle {
      * 连接关闭调用的方法
      *
      * 用户map里减少用户
-     * 在线人数减一
-     * 通知所有人前台更新用户人数
+     * 在登录服务器application移除用户
      * 通知所有人前台减少用户
      */
     @OnClose
@@ -100,6 +93,10 @@ public class WebSocketHandle {
         //移除map里关于username的记录
         webSocketMap.remove(username);
 
+        //移除application关于username的记录
+        ServletContext application = ChatServer.getApplication();
+        application.removeAttribute(username);
+
         //通知所有前台更新在线列表（减少用户）
         MessageDto messageDtoRemoveOnlineMember = new MessageDto();
         messageDtoRemoveOnlineMember.setMessageType("RemoveOnlineMember");
@@ -108,13 +105,6 @@ public class WebSocketHandle {
             entry.getValue().getAsyncRemote().sendText(gson.toJson(messageDtoRemoveOnlineMember));
         }
 
-        //通知所有前台更新在线人数
-        MessageDto messageDtoOnlineCount = new MessageDto();
-        messageDtoOnlineCount.setMessageType("OnlineCount");
-        messageDtoOnlineCount.setData(webSocketMap.size()+"");
-        for (Map.Entry<String, Session> entry : webSocketMap.entrySet()) {
-            entry.getValue().getAsyncRemote().sendText(gson.toJson(messageDtoOnlineCount));
-        }
     }
 
     //----------------------------------------------------------------------------------------------

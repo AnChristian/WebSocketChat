@@ -140,11 +140,6 @@
                     +'<br/>';
             }
 
-            //收到更新在线人数时的动作
-            if (messageJson.messageType == "OnlineCount") {
-                document.getElementById("onlineCount").innerHTML = "在线人数："+messageJson.data;
-            }
-
             //接收到增加在线成员时的动作
             if (messageJson.messageType == "AddOnlineMember") {
                 addUser(messageJson.data);
@@ -160,6 +155,7 @@
                 websocket.close();
                 setMessageInnerHTML("连接断开");
             }
+
         }
 
         //将内容显示在网页左上角
@@ -179,6 +175,9 @@
             var a = document.getElementsByClassName("onlineUserA");
             for(var i=0; i<a.length; i++){
                 if (a[i].innerHTML == username) {
+                    if(a[i].style.color == "rgb(255, 81, 81)"){
+                        document.getElementById("b1").disabled = "disabled";
+                    }
                     div.removeChild(a[i]);
                 }
             }
@@ -186,11 +185,8 @@
 
         //在对象列表上添加对象
         function addUser(username) {
-            var s1 = "<a class='onlineUserA' onclick='selectUser('";
-            var s2 = "')>";
-            var s3 = "</a>";
-            var s4 = "<br/>";
-            var s = s1+username+s2+username+s3+s4;
+            var suser = "'"+username+"'";
+            var s = '<a class="onlineUserA" onclick="selectUser('+suser+')">'+username+'</a>';
             document.getElementById("onlineUser").innerHTML += s;
         }
 
@@ -225,6 +221,7 @@
                                                                                 + myDate.getMinutes() + "分"
                                                                                 +'<br/>';
                     websocket.send(receiverName+"|"+message);
+                    document.getElementById("sendMsg").value="";
                 } else {
                     alert("请输入发送的内容");
                 }
@@ -245,9 +242,9 @@
     <div id="Chatbox2">
         <div id="UserSelf">${username }</div>
 
-        <a id="onlineCount" style="margin-left: 55px; color: #999999">在线人数：</a>
         <div id="t2">选择发送对象</div><br/>
         <div id="onlineUser">
+
         </div>
     </div>
     <div id="status" style="width: 120px;height: 20px"></div>
