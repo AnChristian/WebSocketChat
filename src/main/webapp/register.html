@@ -32,6 +32,7 @@
             if(data.status == 0){
                 t1.style.fontSize = "20px";
                 t1.innerText = data.object+"";
+                document.getElementById("registerB").disabled = true;
             } else {
                 alert("注册失败，更换用户名或密码再试一遍(lll￢ω￢)");
             }
