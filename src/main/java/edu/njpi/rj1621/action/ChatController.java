@@ -145,7 +145,7 @@ public class ChatController {
         user.setRoleCode("yh");
         userSvc.addUser(user);
 
-        Message message = new Message("0", "注册成功，点击右上角返回登录吧");
+        Message message = new Message("0", "注册成功，点击左上角返回登录吧");
 
         Gson gson = new Gson();
         String json = gson.toJson(message);
